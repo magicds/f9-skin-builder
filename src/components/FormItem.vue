@@ -1,24 +1,28 @@
 <template>
-<div>
-    <label >{{label}}: <input v-model="value" :name="name"></label>
-</div>
+  <div>
+    <label>
+      {{label}}:
+      <input v-model="value" :name="name">
+    </label>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    name: {
-      type: String,
-      default: ""
-    },
-    value: {
-      type: String,
-      default: ""
-    },
-    label: {
-      type: String,
-      default: ""
+    rule: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     }
+  },
+  data() {
+    return {
+      label: this.rule.name,
+      value: this.rule.value,
+      name: this.rule.key
+    };
   }
 };
 </script>

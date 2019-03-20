@@ -1,3 +1,3 @@
 module.exports = {
-    publicPath: "/skin-builder/"
+    // publicPath: "/skin-builder/"
 }

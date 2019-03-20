@@ -2,11 +2,11 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <div v-if="baseRules.length">
-      <FormItem v-for="(rule, index) in baseRules" :key="index" :name="rule.key" :label="rule.name" v-model="rule.value"></FormItem>
+      <FormItem v-for="(rule, index) in baseRules" :key="index" :rule="rule"></FormItem>
     </div>
     <hr>
     <div v-if="advancedRules.length">
-      <FormItem v-for="(rule, index) in advancedRules" :key="index" :name="rule.key" :label="rule.name" v-model="rule.value"></FormItem>
+      <FormItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></FormItem>
     </div>
     <hr>
     <pre>{{output}}</pre>
