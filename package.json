@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --target lib --name skinBuilder",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "less": "^3.9.0",
     "vue": "^2.6.6"
   },
   "devDependencies": {
@@ -28,7 +29,9 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
