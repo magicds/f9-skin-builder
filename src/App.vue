@@ -1,26 +1,28 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
+  <div class="skin-builder">
     <div v-if="baseRules.length">
-      <FormItem v-for="(rule, index) in baseRules" :key="index" :rule="rule"></FormItem>
+      <RuleItem v-for="(rule, index) in baseRules" :key="index" :rule="rule"></RuleItem>
     </div>
     <hr>
     <div v-if="advancedRules.length">
-      <FormItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></FormItem>
+      <RuleItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></RuleItem>
     </div>
     <hr>
     <pre>{{output}}</pre>
+    <div class="preview">
+      <iframe ref="previewIframe" src="//192.168.118.47/ep93/frame/fui/pages/skinTest/all.html" frameborder="0" width="100%" height="100%"></iframe>
+    </div>
   </div>
 </template>
 
 <script>
 import lessRender from "./components/lib/lessRender.js";
-import FormItem from './components/FormItem';
+import RuleItem from "./components/RuleItem";
 
 export default {
   name: "app",
   components: {
-    FormItem
+    RuleItem
   },
   props: {
     baseRules: {
@@ -50,11 +52,13 @@ export default {
   },
   computed: {
     input() {
-      return this.delcares
-        .map(rule => {
-          return `${rule.key}: ${rule.value}`;
-        })
-        .join(";\n") + ';\n';
+      return (
+        this.delcares
+          .map(rule => {
+            return `${rule.key}: ${rule.value}`;
+          })
+          .join(";\n") + ";\n"
+      );
     }
   },
   mounted() {
@@ -69,12 +73,21 @@ export default {
     },
     output() {
       this.$emit("change", this.output);
+      this.updatePreview();
     }
   },
   methods: {
+    updatePreview() {
+      this.$refs.previewIframe.contentWindow.postMessage(
+        JSON.stringify({
+          type: "skinBuild",
+          css: this.output
+        }),
+        "*"
+      );
+    },
     renderStyle() {
       const t = this.input + this.less;
-      console.log(t);
       return lessRender(t)
         .then(res => {
           this.output = res.css;
@@ -92,17 +105,19 @@ export default {
   }
 };
 </script>
-
 <style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* text-align: center; */
-  width: 60%;
-  margin-left: auto;
-  margin-right: auto;
-  color: #2c3e50;
-  margin-top: 60px;
+.skin-builder {
+  height: 100vh;
+  position: relative;
+}
+.preview {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 300px;
+  height: 100%;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
 }
 </style>
+
+
