@@ -8,6 +8,7 @@
       <RuleItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></RuleItem>
     </div>
     <hr>
+    <button @click="downloadSkin" :disabled="!output">下载皮肤文件</button>
     <pre>{{output}}</pre>
     <div class="preview">
       <iframe ref="previewIframe" src="//192.168.118.47/ep93/frame/fui/pages/skinTest/all.html" frameborder="0" width="100%" height="100%"></iframe>
@@ -17,6 +18,7 @@
 
 <script>
 import lessRender from "./components/lib/lessRender.js";
+import download from "./components/lib/download.js";
 import RuleItem from "./components/RuleItem";
 
 export default {
@@ -95,12 +97,21 @@ export default {
         .catch(err => {
           this.output = "";
           console.error(err);
+          console.error(
+            "error:",
+            err.type,
+            "error at: ",
+            t.substr(err.index, 20)
+          );
         });
     },
     getFormData() {
       const data = { base: [], advanced: [] };
 
       // this.rules.map(rule => {});
+    },
+    downloadSkin() {
+      download(this.output, "skin.css");
     }
   }
 };

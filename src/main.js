@@ -222,6 +222,9 @@ body a.mini-splitbutton .mini-button-text:hover {
 }.mini-buttonedit-focus .mini-buttonedit-border,
 .mini-buttonedit-popup .mini-buttonedit-border {
     border-color: @input-focus-border-color;
+}
+.mini-buttonedit-input {
+    color: @text-color;
 }.mini-calendar {
     &-yearPrev,
     &-monthPrev,
@@ -556,7 +559,9 @@ body .mini-pager-num,
 }
 
 // tabstreeselect
-
+.mini-tabstreeselect-header {
+    color: @text-color;
+}
 .mini-tabstreeselect-tabs>li:hover {
     color: @primary-color;
 }
@@ -624,7 +629,8 @@ body .mini-pager-num,
     &:hover {
         color: @primary-color;
     }
-}`
+}
+`
 
 new Vue({
   // render: h => h(App),

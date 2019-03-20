@@ -1,9 +1,9 @@
 <template>
   <div class="input-group color-picker" ref="colorpicker">
-    <input type="text" class="input-group-input" :class="{'active':displayPicker}" v-model="colorValue" @focus="showPicker()" @input="updateFromInput" ref="input">
+    <input type="text" class="input-group-input" :class="{'active':displayPicker}" v-model="inputValue" @focus="showPicker()" @blur="hanleInputBlur" @input="updateFromInput" ref="input">
     <span class="input-group-addon color-picker-container">
       <span class="current-color" :style="'background-color: ' + colorValue" @click="togglePicker()"></span>
-      <Chrome :value="colors" @input="updateFromPicker" v-if="displayPicker" :disableAlpha="!0"/>
+      <Chrome :value="colors" @input="updateFromPicker" v-if="displayPicker" :disableAlpha="disableAlpha"/>
     </span>
   </div>
 </template>
@@ -17,10 +17,12 @@ export default {
   props: ["color"],
   data() {
     return {
+      disableAlpha: true,
       colors: {
         hex: "#000000"
       },
       colorValue: "",
+      inputValue: "",
       displayPicker: false
     };
   },
@@ -29,9 +31,13 @@ export default {
     this.setInputFocusStyle();
   },
   methods: {
+    isValid(color) {
+      if (!this.disableAlpha) return true;
+      return /^#[0-9a-f]{6}$/i.test(color);
+    },
     setColor(color) {
       this.updateColors(color);
-      this.colorValue = color;
+      this.inputValue = this.colorValue = color;
     },
     setInputFocusStyle() {
       const hex = this.colorValue;
@@ -46,7 +52,7 @@ export default {
     updateColors(color) {
       if (color.slice(0, 1) == "#") {
         this.colors = {
-          hex: color
+          hex: color.substr(0, 7)
         };
       } else if (color.slice(0, 4) == "rgba") {
         var rgba = color.replace(/^rgba?\(|\s+|\)$/g, "").split(","),
@@ -77,15 +83,24 @@ export default {
     togglePicker() {
       this.displayPicker ? this.hidePicker() : this.showPicker();
     },
+    hanleInputBlur() {
+      if (!this.isValid(this.inputValue)) {
+        this.inputValue = this.colorValue;
+      }
+    },
     updateFromInput() {
-      this.updateColors(this.colorValue);
+      this.isValid(this.inputValue) && this.updateColors(this.colorValue);
     },
     updateFromPicker(color) {
+      // 禁用通道时 ...
+      if (this.disableAlpha) {
+        color.rgba.a = 1;
+      }
       this.colors = color;
       if (color.rgba.a == 1) {
-        this.colorValue = color.hex;
+        this.inpuValue = this.colorValue = color.hex;
       } else {
-        this.colorValue =
+        this.inpuValue = this.colorValue =
           "rgba(" +
           color.rgba.r +
           ", " +
@@ -100,6 +115,7 @@ export default {
     documentClick(e) {
       var el = this.$refs.colorpicker,
         target = e.target;
+      if (!el) return;
       if (el !== target && !el.contains(target)) {
         this.hidePicker();
       }
@@ -150,6 +166,11 @@ export default {
   border-color: var(--borderColor);
   box-shadow: inset 0 0 4px rgba(28, 102, 169, 0.4);
   box-shadow: var(--boxShadow);
+}
+.input-group-input.error {
+  outline: none;
+  border-color: red;
+  box-shadow: inset 0 0 4px rgba(255, 0, 0, 0.4);
 }
 .input-group-addon {
   display: inline-block;
