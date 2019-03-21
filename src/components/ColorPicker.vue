@@ -98,9 +98,9 @@ export default {
       }
       this.colors = color;
       if (color.rgba.a == 1) {
-        this.inpuValue = this.colorValue = color.hex;
+        this.inputValue = this.colorValue = color.hex;
       } else {
-        this.inpuValue = this.colorValue =
+        this.inputValue = this.colorValue =
           "rgba(" +
           color.rgba.r +
           ", " +
