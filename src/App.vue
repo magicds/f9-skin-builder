@@ -1,133 +1,138 @@
 <template>
-  <div class="skin-builder">
-    <div v-if="baseRules.length">
-      <RuleItem v-for="(rule, index) in baseRules" :key="index" :rule="rule"></RuleItem>
+  <div class="f9-skin-bulder">
+    <div class="toolbar">
+      预设:
+      <el-select class="preset-select" v-model="currRule" placeholder="请选择" @change="updateFromPreset">
+        <el-option-group v-for="group in presetRules" :key="group.label" :label="group.label">
+          <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-option-group>
+      </el-select>
+      <el-button type="primary" class="preset-save" @click="saveAsPreset">存为预设</el-button>
     </div>
-    <hr>
-    <div v-if="advancedRules.length">
-      <RuleItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></RuleItem>
-    </div>
-    <hr>
-    <button @click="downloadSkin" :disabled="!output">下载皮肤文件</button>
-    <pre>{{output}}</pre>
-    <div class="preview">
-      <iframe ref="previewIframe" src="//192.168.118.47/ep93/frame/fui/pages/skinTest/all.html" frameborder="0" width="100%" height="100%"></iframe>
-    </div>
+    <SkinBuilder :baseRules="baseRules" :advancedRules="advancedRules" :less="less" :previewUrl="previewUrl"/>
   </div>
 </template>
 
 <script>
-import lessRender from "./components/lib/lessRender.js";
-import download from "./components/lib/download.js";
-import RuleItem from "./components/RuleItem";
+import SkinBuilder from "./components/SkinBuilder.vue";
+
+const SAVE_PREFIX = "__F9_SKIN_BUILDER__" + __F9_SKIN_BUILDER__.version;
 
 export default {
   name: "app",
   components: {
-    RuleItem
-  },
-  props: {
-    baseRules: {
-      type: Array,
-      default: () => []
-    },
-    advancedRules: {
-      type: Array,
-      default: () => []
-    },
-    less: {
-      type: String,
-      default: ""
-    }
+    SkinBuilder
   },
   data() {
-    const delcares = this.baseRules.concat(this.advancedRules);
-    const ruleMap = new Map();
-    delcares.forEach(rule => {
-      ruleMap.set(rule.key, rule);
-    });
-    return {
-      ruleMap,
-      delcares,
-      output: ""
-    };
-  },
-  computed: {
-    input() {
-      return (
-        this.delcares
-          .map(rule => {
-            return `${rule.key}: ${rule.value}`;
-          })
-          .join(";\n") + ";\n"
-      );
-    }
+    return this.genderInitData();
   },
   mounted() {
-    this.renderStyle();
-  },
-  watch: {
-    less() {
-      this.renderStyle();
-    },
-    input() {
-      this.renderStyle();
-    },
-    output() {
-      this.$emit("change", this.output);
-      this.updatePreview();
-    }
+    this.getLessText();
   },
   methods: {
-    updatePreview() {
-      this.$refs.previewIframe.contentWindow.postMessage(
-        JSON.stringify({
-          type: "skinBuild",
-          css: this.output
-        }),
-        "*"
-      );
+    // 构建初始化值
+    genderInitData() {
+      // 预设
+      const data = this.getPreset();
+      const sysPreset = data.presetRules[0];
+      // 选中系统第一个预设
+      if (sysPreset && sysPreset.options.length) {
+        data.currRule = sysPreset.options[0].value;
+        data.baseRules = data.presetMaps[data.currRule].baseRules;
+        data.advancedRules = data.presetMaps[data.currRule].advancedRules;
+      }
+
+      // less 内容
+      const localLessText = localStorage.getItem(SAVE_PREFIX + "--LESSTEXT");
+      data.less = localLessText || "";
+
+      // 预览地址
+      data.previewUrl = window.__F9_SKIN_BUILDER__.previewUrl;
+
+      return data;
     },
-    renderStyle() {
-      const t = this.input + this.less;
-      return lessRender(t)
-        .then(res => {
-          this.output = res.css;
-        })
-        .catch(err => {
-          this.output = "";
-          console.error(err);
-          console.error(
-            "error:",
-            err.type,
-            "error at: ",
-            t.substr(err.index, 20)
-          );
+    init() {},
+    // 远端拉取最新的less文件
+    getLessText() {
+      window
+        .httpGet(__F9_SKIN_BUILDER__.lessUrl + "?t=" + +new Date())
+        .then(less => {
+          if (less != this.less) {
+            this.less = less;
+            localStorage.setItem(SAVE_PREFIX + "--LESSTEXT", less);
+          }
         });
     },
-    getFormData() {
-      const data = { base: [], advanced: [] };
+    // 获取预设
+    getPreset() {
+      const presetMaps = {};
+      // 系统预设
+      const sysPreset = JSON.parse(
+        JSON.stringify(window.__F9_SKIN_BUILDER__.preset)
+      );
+      const sysPresetArr = [];
+      _getPreset(sysPreset, sysPresetArr);
 
-      // this.rules.map(rule => {});
+      // 我的预设
+      const myPreset = JSON.parse(
+        localStorage.getItem(SAVE_PREFIX + "--PRESET")
+      );
+      const myPresetArr = [];
+      _getPreset(myPreset, myPresetArr);
+
+      return {
+        presetMaps,
+        presetRules: [
+          {
+            label: "系统预设",
+            options: sysPresetArr
+          },
+          {
+            label: "我的预设",
+            options: myPresetArr
+          }
+        ]
+      };
+
+      function _getPreset(preset, arr) {
+        for (let p in preset) {
+          if (Object.prototype.hasOwnProperty.call(preset, p)) {
+            arr.push({
+              label: preset[p].name,
+              value: p
+            });
+            presetMaps[p] = preset[p].rule;
+          }
+        }
+      }
     },
-    downloadSkin() {
-      download(this.output, "skin.css");
-    }
+    updateFromPreset() {
+      var rules = this.presetMaps[this.currRule];
+      if (rules) {
+        // this.baseRules.splice(0,this.baseRules.length,...rules.baseRules);
+        // this.advancedRules.splice(0,this.advancedRules.length,...rules.advancedRules);
+        rules = JSON.parse(JSON.stringify(rules));
+        this.$set(this, "baseRules", rules.baseRules);
+        this.$set(this, "advancedRules", rules.advancedRules);
+      }
+    },
+    saveAsPreset() {}
   }
 };
 </script>
-<style>
-.skin-builder {
-  height: 100vh;
-  position: relative;
+<style lang="less">
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
 }
-.preview {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 240px;
-  height: 100%;
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+.f9-skin-bulder {
+  .toolbar {
+    padding-top: 10px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+  }
 }
 </style>
 

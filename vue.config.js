@@ -1,3 +1,6 @@
 module.exports = {
-    // publicPath: "/skin-builder/"
+    // publicPath: "/skin-builder/",
+    devServer: {
+        proxy: 'http://localhost'
+    }
 }

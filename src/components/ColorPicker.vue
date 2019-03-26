@@ -1,10 +1,11 @@
 <template>
-  <div class="input-group color-picker" ref="colorpicker">
-    <input type="text" class="input-group-input" :class="{'active':displayPicker}" v-model="inputValue" @focus="showPicker()" @blur="hanleInputBlur" @input="updateFromInput" ref="input">
-    <span class="input-group-addon color-picker-container">
-      <span class="current-color" :style="'background-color: ' + colorValue" @click="togglePicker()"></span>
-      <Chrome :value="colors" @input="updateFromPicker" v-if="displayPicker" :disableAlpha="disableAlpha"/>
-    </span>
+  <div class="color-picker" ref="colorpicker">
+    <slot></slot>
+    <div class="current-color" :style="'background-color: ' + colorValue" @click="togglePicker()">
+      <span class="current-color-value">{{colorValue.toLowerCase()}}</span>
+      <label class="current-color-label">{{label}}</label>
+    </div>
+    <Chrome class="color-picker-chrome" :value="colors" @input="updateFromPicker" v-if="displayPicker" :disableAlpha="disableAlpha"/>
   </div>
 </template>
 
@@ -14,7 +15,23 @@ export default {
   components: {
     Chrome
   },
-  props: ["color"],
+  props: {
+    // 颜色值
+    color: {
+      type: String,
+      default: ""
+    },
+    // 展示名称
+    label: {
+      type: String,
+      default: ""
+    },
+    // 联动的颜色
+    referColor: {
+      type: String,
+      default: ""
+    }
+  },
   data() {
     return {
       disableAlpha: true,
@@ -22,32 +39,35 @@ export default {
         hex: "#000000"
       },
       colorValue: "",
-      inputValue: "",
       displayPicker: false
     };
   },
   mounted() {
     this.setColor(this.color || "#000000");
-    this.setInputFocusStyle();
+    this.setStyle();
   },
   methods: {
+    setStyle() {
+      const hex = this.color;
+      if (hex[0] != "#") return;
+      const rgb = [0, 1, 2].map((v, i) => {
+        return parseInt(hex.substr(i * 2 + 1, 2), 16) || 0;
+      });
+      const dropShadow = `drop-shadow(2px 2px 6px rgba( ${rgb.join(",")} ,.15)`;
+
+      this.$refs.colorpicker.style.setProperty("--color", hex);
+      this.$refs.colorpicker.style.setProperty("--dropShadow", dropShadow);
+      this.$refs.colorpicker.style.setProperty("--red", rgb[0]);
+      this.$refs.colorpicker.style.setProperty("--green", rgb[1]);
+      this.$refs.colorpicker.style.setProperty("--blue", rgb[2]);
+    },
     isValid(color) {
       if (!this.disableAlpha) return true;
       return /^#[0-9a-f]{6}$/i.test(color);
     },
     setColor(color) {
       this.updateColors(color);
-      this.inputValue = this.colorValue = color;
-    },
-    setInputFocusStyle() {
-      const hex = this.colorValue;
-      if (hex[0] != "#") return;
-      const rgb = [0, 1, 2].map((v, i) => {
-        return parseInt(hex.substr(i * 2 + 1, 2), 16) || 0;
-      });
-      const boxShadow = `inset 0 0 4px rgba(${rgb.join(",")},.4)`;
-      this.$refs.input.style.setProperty("--borderColor", hex);
-      this.$refs.input.style.setProperty("--boxShadow", boxShadow);
+      this.colorValue = color;
     },
     updateColors(color) {
       if (color.slice(0, 1) == "#") {
@@ -73,23 +93,15 @@ export default {
       }
     },
     showPicker() {
-      document.addEventListener("click", this.documentClick);
+      document.addEventListener("mousedown", this.documentClick);
       this.displayPicker = true;
     },
     hidePicker() {
-      document.removeEventListener("click", this.documentClick);
+      document.removeEventListener("mousedown", this.documentClick);
       this.displayPicker = false;
     },
     togglePicker() {
       this.displayPicker ? this.hidePicker() : this.showPicker();
-    },
-    hanleInputBlur() {
-      if (!this.isValid(this.inputValue)) {
-        this.inputValue = this.colorValue;
-      }
-    },
-    updateFromInput() {
-      this.isValid(this.inputValue) && this.updateColors(this.colorValue);
     },
     updateFromPicker(color) {
       // 禁用通道时 ...
@@ -98,9 +110,9 @@ export default {
       }
       this.colors = color;
       if (color.rgba.a == 1) {
-        this.inputValue = this.colorValue = color.hex;
+        this.colorValue = color.hex;
       } else {
-        this.inputValue = this.colorValue =
+        this.colorValue =
           "rgba(" +
           color.rgba.r +
           ", " +
@@ -111,6 +123,8 @@ export default {
           color.rgba.a +
           ")";
       }
+
+      this.$emit("change", this.colorValue);
     },
     documentClick(e) {
       var el = this.$refs.colorpicker,
@@ -122,10 +136,14 @@ export default {
     }
   },
   watch: {
+    color() {
+      this.setColor(this.color || "#000000");
+      this.setStyle();
+    },
     colorValue(val) {
       if (val) {
         this.updateColors(val);
-        this.setInputFocusStyle();
+        this.setStyle();
         this.$emit("input", val);
       }
     }
@@ -133,58 +151,92 @@ export default {
 };
 </script>
 
-<style>
+<style style lang="less" >
 .color-picker {
+  /* 定义RGB变量 */
+  --red: 44;
+  --green: 135;
+  --blue: 255;
+  /* 文字颜色变色的临界值，建议0.5~0.6 */
+  --threshold: 0.5;
+  /* 深色边框出现的临界值，范围0~1，推荐0.8+*/
+  --border-threshold: 0.8;
+  --r: calc(var(--red) * 0.2126);
+  --g: calc(var(--green) * 0.7152);
+  --b: calc(var(--blue) * 0.0722);
+  --sum: calc(var(--r) + var(--g) + var(--b));
+
+  --lightness: calc(var(--sum) / 255);
+
+  /**
+   * --lightness近似看成亮度，范围0~1，此时，和临界值--threshold做比较：
+   * 大于，则正数，和-999999%相乘，会得到一个巨大负数，浏览器会按照合法边界0%渲染，也就是亮度为0，于是颜色是黑色；
+   * 小于，则和-999999%相乘，会得到一个巨大的正数，以最大合法值100%渲染，于是颜色是白色；
+  */
+  color: hsl(0, 0%, calc((var(--lightness) - var(--threshold)) * -999999%));
+
+  --color: #fff;
   position: relative;
-  width: 226px;
-  /* display: inline-block; */
-}
-.vc-chrome {
-  position: absolute;
-  top: 35px;
-  right: 0;
-  z-index: 9;
-}
 
-.input-group-input {
-  padding-left: 4px;
-  line-height: 24px;
-  height: 26px;
-  box-sizing: border-box;
-  border: 1px solid #bdbec1;
-  /* border-right: none; */
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  box-sizing: border-box;
-  width: 200px;
-}
-
-.input-group-input:focus,
-.input-group-input.active {
-  outline: none;
-  border-color: #666;
-  border-color: var(--borderColor);
-  box-shadow: inset 0 0 4px rgba(28, 102, 169, 0.4);
-  box-shadow: var(--boxShadow);
-}
-.input-group-input.error {
-  outline: none;
-  border-color: red;
-  box-shadow: inset 0 0 4px rgba(255, 0, 0, 0.4);
-}
-.input-group-addon {
-  display: inline-block;
-  vertical-align: top;
-  width: 26px;
-  height: 26px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  overflow: hidden;
-}
-.current-color {
   display: block;
+
+  box-sizing: border-box;
   height: 100%;
-  background-color: #000;
-  cursor: pointer;
+
+  &-chrome {
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + 10px);
+    left: 0;
+    padding-bottom: 2px;
+
+    filter: drop-shadow(2px 2px 6px rgba(0, 0, 0, 0.15));
+    filter: var(--dropShadow);
+
+    &:before {
+      position: absolute;
+      z-index: 2;
+      top: -10px;
+      left: 10px;
+
+      display: block;
+
+      width: 0;
+      height: 0;
+
+      content: "";
+
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid #fff;
+      border-left: 10px solid transparent;
+      border-bottom-color: var(--color);
+    }
+  }
+
+  .current-color {
+    font-size: 12px;
+    box-sizing: border-box;
+    padding: 4px;
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    &-value,
+    &-label {
+      display: block;
+
+      // color: #fff;
+    }
+    // &-label {
+    //   align-self: flex-end;
+    // }
+  }
 }
 </style>
+
+<style>
+.vc-chrome-toggle-btn {
+  display: none;
+}
+</style>
+
