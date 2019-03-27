@@ -5,13 +5,17 @@ import {
     Select,
     Option,
     OptionGroup,
-    Tooltip
+    Tooltip,
+    Dialog,
+    Input
 } from 'element-ui';
 Vue.use(Button);
 Vue.use(Select);
 Vue.use(Option);
 Vue.use(OptionGroup);
 Vue.use(Tooltip);
+Vue.use(Dialog);
+Vue.use(Input);
 
 Vue.config.productionTip = false
 

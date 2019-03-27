@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "element-ui": "^2.6.3",
+    "highlight.js": "^9.15.6",
     "iview": "^3.3.3",
     "less": "^3.9.0",
     "vue": "^2.6.6",

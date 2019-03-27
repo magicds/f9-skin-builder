@@ -2,14 +2,22 @@
   <div class="f9-skin-bulder">
     <div class="toolbar">
       预设:
-      <el-select class="preset-select" v-model="currRule" placeholder="请选择" @change="updateFromPreset">
+      <el-select class="preset-select" v-model="currRule" placeholder="请选择" @change="updateFromPreset" size="small">
         <el-option-group v-for="group in presetRules" :key="group.label" :label="group.label">
           <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-option-group>
       </el-select>
-      <el-button type="primary" class="preset-save" @click="saveAsPreset">存为预设</el-button>
+      <el-button type="primary" class="preset-save" @click="dialogVisible = true" size="small" :disabled="!!currRule">存为预设</el-button>
     </div>
-    <SkinBuilder :baseRules="baseRules" :advancedRules="advancedRules" :less="less" :previewUrl="previewUrl"/>
+    <SkinBuilder ref="skinBuilder" :baseRules="baseRules" :advancedRules="advancedRules" :less="less" :previewUrl="previewUrl" @change="change"/>
+
+    <el-dialog title="输入名称" :visible.sync="dialogVisible" width="30%" @open="resetMyPresetName">
+      <el-input v-model="myPresetName" placeholder="请输入名称" size="small"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="saveAsPreset" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,9 +57,14 @@ export default {
       // 预览地址
       data.previewUrl = window.__F9_SKIN_BUILDER__.previewUrl;
 
+      // dialog
+      data.dialogVisible = false;
+
+      // myPresetName
+      data.myPresetName = "";
+
       return data;
     },
-    init() {},
     // 远端拉取最新的less文件
     getLessText() {
       window
@@ -116,7 +129,37 @@ export default {
         this.$set(this, "advancedRules", rules.advancedRules);
       }
     },
-    saveAsPreset() {}
+    saveAsPreset(done) {
+      var rule = this.$refs.skinBuilder.getFormData();
+      const currPresetId = "myPreset-" + this.presetRules[1].options.length;
+      const currPreset = {
+        name: this.myPresetName,
+        rule
+      };
+      const presets =
+        JSON.parse(localStorage.getItem(SAVE_PREFIX + "--PRESET")) || {};
+      presets[currPresetId] = currPreset;
+      localStorage.setItem(SAVE_PREFIX + "--PRESET", JSON.stringify(presets));
+
+      // update Preset
+      this.addCustomPreset(currPresetId, currPreset);
+      this.dialogVisible = false;
+    },
+    addCustomPreset(id, preset) {
+      this.presetRules[1].options.push({
+        label: preset.name,
+        value: id
+      });
+      this.presetMaps[id] = preset.rule;
+      this.currRule = id;
+    },
+    resetMyPresetName() {
+      this.myPresetName =
+        "我的预设-" + (this.presetRules[1].options.length + 1);
+    },
+    change() {
+      this.currRule = "";
+    }
   }
 };
 </script>
@@ -126,12 +169,20 @@ body {
   margin: 0;
   padding: 0;
   font-size: 13px;
+  color: #3d4b64;
+  line-height: 32px;
 }
 .f9-skin-bulder {
+  position: relative;
   .toolbar {
     padding-top: 10px;
     padding-left: 10px;
     margin-bottom: 10px;
+    > * {
+      margin-left: 10px;
+    }
+  }
+  .preview {
   }
 }
 </style>

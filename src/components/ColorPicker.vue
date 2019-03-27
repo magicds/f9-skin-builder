@@ -224,12 +224,8 @@ export default {
     &-value,
     &-label {
       display: block;
-
-      // color: #fff;
+      line-height: 20px;
     }
-    // &-label {
-    //   align-self: flex-end;
-    // }
   }
 }
 </style>

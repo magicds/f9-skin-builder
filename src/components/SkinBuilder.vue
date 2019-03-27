@@ -1,15 +1,26 @@
 <template>
   <div class="skin-builder">
-    <div v-if="baseRules.length" class="base-reles">
-      <RuleItem v-for="(rule, index) in baseRules" :key="index" :rule="rule"></RuleItem>
+    <div class="rule-area">
+      <h2>主色/辅色</h2>
+      <div v-if="baseRules.length" class="base-reles">
+        <RuleItem v-for="(rule, index) in baseRules" :key="index" :rule="rule" @change="handleChange"></RuleItem>
+      </div>
     </div>
-    <hr>
-    <div v-if="advancedRules.length" class="ext-rules">
-      <RuleItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule"></RuleItem>
+
+    <div class="rule-area">
+      <h2>功能色</h2>
+      <div v-if="advancedRules.length" class="ext-rules">
+        <RuleItem v-for="(rule, index) in advancedRules" :key="index" :rule="rule" @change="handleChange"></RuleItem>
+      </div>
     </div>
-    <hr>
-    <button @click="downloadSkin" :disabled="!output">下载皮肤文件</button>
-    <pre>{{output}}</pre>
+
+    <div class="btns">
+      <el-button type="primary" @click="showCode=!showCode" :disabled="!output" size="small">{{showCode ? '隐藏代码' : '显示代码'}}</el-button>
+      <el-button type="primary" @click="downloadSkin" :disabled="!output" size="small">下载皮肤文件</el-button>
+    </div>
+
+    <pre v-if="showCode"><code ref="code" class="lang-css">{{output}}</code></pre>
+
     <div class="preview" v-if="previewUrl">
       <iframe ref="previewIframe" :src="previewUrl" frameborder="0" width="100%" height="100%"></iframe>
     </div>
@@ -20,6 +31,11 @@
 import lessRender from "./lib/lessRender.js";
 import download from "./lib/download.js";
 import RuleItem from "./RuleItem";
+import hljs from "highlight.js/lib/highlight";
+import css from "highlight.js/lib/languages/css";
+import "highlight.js/styles/atom-one-dark.css";
+
+hljs.registerLanguage("css", css);
 
 export default {
   name: "skin-builder",
@@ -69,11 +85,27 @@ export default {
       this.renderStyle();
     },
     output() {
-      this.$emit("change", this.output);
+      this.$emit("build", this.output);
       this.updatePreview();
+      this.highlightCode();
+    },
+    showCode() {
+      this.highlightCode();
+    },
+    baseRules() {
+      this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
+    },
+    advancedRules() {
+      this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
     }
   },
   methods: {
+    highlightCode() {
+      if (!this.showCode) return;
+      this.$nextTick(() => {
+        this.$refs.code && hljs.highlightBlock(this.$refs.code);
+      });
+    },
     genderData() {
       const delcares = this.baseRules.concat(this.advancedRules);
       const ruleMap = new Map();
@@ -88,11 +120,9 @@ export default {
       return {
         ruleMap,
         delcares,
-        output: ""
+        output: "",
+        showCode: false
       };
-    },
-    updateProps() {
-        
     },
     updatePreview() {
       this.$refs.previewIframe.contentWindow.postMessage(
@@ -121,12 +151,26 @@ export default {
         });
     },
     getFormData() {
-      const data = { base: [], advanced: [] };
-
-      // this.rules.map(rule => {});
+      return {
+        baseRules: removeRefer(this.baseRules),
+        advancedRules: removeRefer(this.advancedRules)
+      };
+      function removeRefer(arr) {
+        const data = JSON.parse(JSON.stringify(arr));
+        data.forEach(rule => {
+          if (rule.refer) {
+            rule.refer = null;
+            delete rule.refer;
+          }
+        });
+        return data;
+      }
     },
     downloadSkin() {
       download(this.output, "skin.css");
+    },
+    handleChange() {
+      this.$emit("change");
     }
   }
 };
@@ -134,12 +178,23 @@ export default {
 <style lang="less">
 .skin-builder {
   height: 100vh;
-  position: relative;
+  .rule-area,
+  .btns {
+    padding: 0 10px;
+  }
+  .rule-area {
+    margin-bottom: 20px;
+    > h2 {
+      font-size: 14px;
+      font-weight: bold;
+      color: #3d4b64;
+      margin: 0;
+    }
+  }
   .base-reles,
   .ext-rules {
     display: flex;
     width: 360px;
-    padding-left: 10px;
   }
   .base-reles {
     flex-wrap: nowrap;
@@ -153,6 +208,11 @@ export default {
       flex-basis: 33.33%;
       margin-bottom: 6px;
     }
+  }
+
+  pre {
+    font-size: 12px;
+    line-height: 20px;
   }
 }
 .preview {

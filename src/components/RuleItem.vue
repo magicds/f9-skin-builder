@@ -1,6 +1,6 @@
 <template>
   <div class="rule-item">
-    <ColorPicker :color="value" v-model="value" :label="label" @change="handlePickerChange">
+    <ColorPicker :color="rule.value" v-model="rule.value" :label="rule.name" @change="handlePickerChange">
       <el-tooltip v-if="!!rule.refer" class="item" effect="dark" :content="useRefer ? referLabel : '重置'" placement="top-end">
         <i class="info-btn el-icon-info" @click="resetRefer()"></i>
       </el-tooltip>
@@ -36,6 +36,7 @@ export default {
   },
   methods: {
     handlePickerChange(color) {
+      this.$emit('change');
       // 用户修改过就不再是引用了
       if (this.rule.refer) {
         this.useRefer = false;
