@@ -9,7 +9,7 @@
       </el-select>
       <el-button type="primary" class="preset-save" @click="dialogVisible = true" size="small" :disabled="!!currRule">存为预设</el-button>
     </div>
-    <SkinBuilder ref="skinBuilder" :baseRules="baseRules" :advancedRules="advancedRules" :less="less" :previewUrl="previewUrl" @change="change"/>
+    <SkinBuilder ref="skinBuilder" :rule="rule" :less="less" :previewUrl="previewUrl" @change="change"/>
 
     <el-dialog title="输入名称" :visible.sync="dialogVisible" width="30%" @open="resetMyPresetName">
       <el-input v-model="myPresetName" placeholder="请输入名称" size="small"></el-input>
@@ -46,8 +46,7 @@ export default {
       // 选中系统第一个预设
       if (sysPreset && sysPreset.options.length) {
         data.currRule = sysPreset.options[0].value;
-        data.baseRules = data.presetMaps[data.currRule].baseRules;
-        data.advancedRules = data.presetMaps[data.currRule].advancedRules;
+        data.rule = data.presetMaps[data.currRule];
       }
 
       // less 内容
@@ -125,8 +124,7 @@ export default {
         // this.baseRules.splice(0,this.baseRules.length,...rules.baseRules);
         // this.advancedRules.splice(0,this.advancedRules.length,...rules.advancedRules);
         rules = JSON.parse(JSON.stringify(rules));
-        this.$set(this, "baseRules", rules.baseRules);
-        this.$set(this, "advancedRules", rules.advancedRules);
+        this.$set(this, "rule", rules);
       }
     },
     saveAsPreset(done) {

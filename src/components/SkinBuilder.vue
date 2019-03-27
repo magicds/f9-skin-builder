@@ -43,13 +43,11 @@ export default {
     RuleItem
   },
   props: {
-    baseRules: {
-      type: Array,
-      default: () => []
-    },
-    advancedRules: {
-      type: Array,
-      default: () => []
+    rule: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     },
     less: {
       type: String,
@@ -61,20 +59,16 @@ export default {
     }
   },
   data() {
-    return this.genderData();
-  },
-  computed: {
-    input() {
-      return (
-        this.delcares
-          .map(rule => {
-            return `${rule.key}: ${rule.value}`;
-          })
-          .join(";\n") + ";\n"
-      );
-    }
+    // return this.genderData();
+    return {
+      baseRules: [],
+      advancedRules: [],
+      output: "",
+      showCode: false
+    };
   },
   mounted() {
+    this.updateRules();
     this.renderStyle();
   },
   watch: {
@@ -92,11 +86,32 @@ export default {
     showCode() {
       this.highlightCode();
     },
-    baseRules() {
-      this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
+    rule() {
+      this.updateRules();
+    }
+    // baseRules() {
+    //   this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
+    // },
+    // advancedRules() {
+    //   this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
+    // }
+  },
+  updated() {
+    console.log("update");
+  },
+  computed: {
+    delcares() {
+      const rule = this.rule;
+      return rule.baseRules.concat(rule.advancedRules);
     },
-    advancedRules() {
-      this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
+    input() {
+      return (
+        this.delcares
+          .map(rule => {
+            return `${rule.key}: ${rule.value}`;
+          })
+          .join(";\n") + ";\n"
+      );
     }
   },
   methods: {
@@ -106,23 +121,21 @@ export default {
         this.$refs.code && hljs.highlightBlock(this.$refs.code);
       });
     },
-    genderData() {
-      const delcares = this.baseRules.concat(this.advancedRules);
+    updateRules() {
+      const rule = this.rule;
+      const delcares = rule.baseRules.concat(rule.advancedRules);
       const ruleMap = new Map();
       delcares.forEach(rule => {
         ruleMap.set(rule.key, rule);
       });
       delcares.forEach(rule => {
         if (/^@/.test(rule.value)) {
+          // 存在引用
           rule.refer = ruleMap.get(rule.value);
         }
       });
-      return {
-        ruleMap,
-        delcares,
-        output: "",
-        showCode: false
-      };
+      this.$set(this, "baseRules", rule.baseRules);
+      this.$set(this, "advancedRules", rule.advancedRules);
     },
     updatePreview() {
       this.$refs.previewIframe.contentWindow.postMessage(
@@ -158,10 +171,14 @@ export default {
       function removeRefer(arr) {
         const data = JSON.parse(JSON.stringify(arr));
         data.forEach(rule => {
-          if (rule.refer) {
-            rule.refer = null;
-            delete rule.refer;
+          if (!rule.refer) return;
+          // 存在引用时 还原引用值
+          if (rule.refer.value == rule.value) {
+            rule.value = rule.refer.key;
           }
+
+          rule.refer = null;
+          delete rule.refer;
         });
         return data;
       }

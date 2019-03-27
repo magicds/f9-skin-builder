@@ -25,18 +25,29 @@ export default {
   },
   data() {
     const hasRefer = !!this.rule.refer;
-    const referLabel = hasRefer ? `同【${this.rule.refer.name}】` : "";
     return {
-      label: this.rule.name,
-      value: this.rule.value,
-      name: this.rule.key,
-      useRefer: hasRefer,
-      referLabel: referLabel
+      useRefer: hasRefer
     };
+  },
+  // data() {
+  //   const hasRefer = !!this.rule.refer;
+  //   const referLabel = hasRefer ? `同【${this.rule.refer.name}】` : "";
+  //   return {
+  //     useRefer: hasRefer,
+  //     referLabel: referLabel
+  //   };
+  // },
+  computed: {
+    hasRefer() {
+      return !!this.rule.refer;
+    },
+    referLabel() {
+      return this.useRefer ? `同【${this.rule.refer.name}】` : "";
+    }
   },
   methods: {
     handlePickerChange(color) {
-      this.$emit('change');
+      this.$emit("change");
       // 用户修改过就不再是引用了
       if (this.rule.refer) {
         this.useRefer = false;
@@ -44,21 +55,17 @@ export default {
     },
     resetRefer() {
       this.useRefer = true;
-      this.value = this.rule.refer.value;
+      this.rule.value = this.rule.refer.value;
     }
   },
   watch: {
-    value() {
-      this.rule.value = this.value;
-    },
-    "rule.refer": {
+    rule: {
       handler() {
-        if (!this.rule.refer) {
-          return;
-        }
+        if (!this.hasRefer) return;
+
         console.log(this.rule.refer);
         if (this.useRefer) {
-          this.value = this.rule.refer.value;
+          this.rule.value = this.rule.refer.value;
         }
       },
       deep: true,
