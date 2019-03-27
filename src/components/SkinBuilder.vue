@@ -19,11 +19,16 @@
       <el-button type="primary" @click="downloadSkin" :disabled="!output" size="small">下载皮肤文件</el-button>
     </div>
 
-    <pre v-if="showCode"><code ref="code" class="lang-css">{{output}}</code></pre>
-
     <div class="preview" v-if="previewUrl">
       <iframe ref="previewIframe" :src="previewUrl" frameborder="0" width="100%" height="100%"></iframe>
     </div>
+    <el-dialog title="查看代码" :visible.sync="showCode" top="50px" width="80%" @open="highlightCode">
+      <pre v-if="showCode" :style="'height:'+codeHeight+'px;'"><code ref="code" class="lang-css">{{output}}</code></pre>
+      <!-- <span slot="footer" class="dialog-footer">
+        <el-button @click="showCode = false" size="small">取 消</el-button>
+        <el-button type="primary" size="small">确 定</el-button>
+      </span> -->
+    </el-dialog>
   </div>
 </template>
 
@@ -34,6 +39,7 @@ import RuleItem from "./RuleItem";
 import hljs from "highlight.js/lib/highlight";
 import css from "highlight.js/lib/languages/css";
 import "highlight.js/styles/atom-one-dark.css";
+import { debug } from "util";
 
 hljs.registerLanguage("css", css);
 
@@ -64,12 +70,14 @@ export default {
       baseRules: [],
       advancedRules: [],
       output: "",
-      showCode: false
+      showCode: false,
+      codeHeight: 0
     };
   },
   mounted() {
     this.updateRules();
     this.renderStyle();
+    this.calcHeight();
   },
   watch: {
     less() {
@@ -81,23 +89,11 @@ export default {
     output() {
       this.$emit("build", this.output);
       this.updatePreview();
-      this.highlightCode();
-    },
-    showCode() {
-      this.highlightCode();
     },
     rule() {
       this.updateRules();
+      this.renderStyle();
     }
-    // baseRules() {
-    //   this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
-    // },
-    // advancedRules() {
-    //   this.$set(this, "delcares", this.baseRules.concat(this.advancedRules));
-    // }
-  },
-  updated() {
-    console.log("update");
   },
   computed: {
     delcares() {
@@ -115,10 +111,16 @@ export default {
     }
   },
   methods: {
+    calcHeight() {
+      this.codeHeight = window.innerHeight - 210;
+    },
     highlightCode() {
       if (!this.showCode) return;
       this.$nextTick(() => {
-        this.$refs.code && hljs.highlightBlock(this.$refs.code);
+        if (this.$refs.code) {
+          this.$refs.code.textContent = this.output;
+          hljs.highlightBlock(this.$refs.code);
+        }
       });
     },
     updateRules() {
@@ -155,6 +157,9 @@ export default {
         .catch(err => {
           this.output = "";
           console.error(err);
+          this.$message.error(
+            `【${err.type}】 at "${t.substr(err.index, 20)}"`
+          );
           console.error(
             "error:",
             err.type,
@@ -230,6 +235,11 @@ export default {
   pre {
     font-size: 12px;
     line-height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+    overflow: auto;
   }
 }
 .preview {
@@ -239,5 +249,8 @@ export default {
   left: 380px;
   height: 100%;
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+}
+.el-dialog__body {
+  padding: 0 0 20px;
 }
 </style>

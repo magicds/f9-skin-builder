@@ -7,6 +7,7 @@ import {
     OptionGroup,
     Tooltip,
     Dialog,
+    Message,
     Input
 } from 'element-ui';
 Vue.use(Button);
@@ -16,9 +17,10 @@ Vue.use(OptionGroup);
 Vue.use(Tooltip);
 Vue.use(Dialog);
 Vue.use(Input);
+Vue.use(Message);
+Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false
-
 
 new Vue({
     render: h => h(App)

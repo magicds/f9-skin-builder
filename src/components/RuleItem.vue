@@ -63,7 +63,6 @@ export default {
       handler() {
         if (!this.hasRefer) return;
 
-        console.log(this.rule.refer);
         if (this.useRefer) {
           this.rule.value = this.rule.refer.value;
         }

@@ -169,6 +169,8 @@ body {
   font-size: 13px;
   color: #3d4b64;
   line-height: 32px;
+  overflow: hidden;
+  height: 100%;
 }
 .f9-skin-bulder {
   position: relative;
@@ -186,3 +188,114 @@ body {
 </style>
 
 
+<style>
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-button:end:increment,
+::-webkit-scrollbar-button:start:decrement {
+  display: block;
+}
+
+::-webkit-scrollbar-button:vertical:end:decrement,
+::-webkit-scrollbar-button:vertical:start:increment {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb:horizontal,
+::-webkit-scrollbar-thumb:vertical,
+::-webkit-scrollbar-track:horizontal,
+::-webkit-scrollbar-track:vertical {
+  border-color: transparent;
+  border-style: solid;
+}
+
+::-webkit-scrollbar-track:vertical::-webkit-scrollbar-track:horizontal {
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb {
+  min-height: 28px;
+  padding-top: 100;
+  background-color: rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border-radius: 5px;
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.07);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+::-webkit-scrollbar-thumb:horizontal,
+::-webkit-scrollbar-thumb:vertical,
+::-webkit-scrollbar-track:horizontal,
+::-webkit-scrollbar-track:vertical {
+  border-width: 0;
+}
+
+::-webkit-scrollbar-track:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-track:active {
+  background-color: rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.14),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.07);
+}
+
+.scrollbar-hover::-webkit-scrollbar,
+.scrollbar-hover::-webkit-scrollbar-button,
+.scrollbar-hover::-webkit-scrollbar-thumb,
+.scrollbar-hover::-webkit-scrollbar-track {
+  visibility: hidden;
+}
+
+.scrollbar-hover:hover::-webkit-scrollbar,
+.scrollbar-hover:hover::-webkit-scrollbar-button,
+.scrollbar-hover:hover::-webkit-scrollbar-thumb,
+.scrollbar-hover:hover::-webkit-scrollbar-track {
+  visibility: visible;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* IE 滚动条 */
+html,
+body,
+ul,
+li,
+div,
+pre {
+  /*三角箭头的颜色*/
+  scrollbar-arrow-color: #ccc;
+  /*滚动条滑块按钮的颜色*/
+  scrollbar-face-color: #ccc;
+  /*滚动条整体颜色*/
+  scrollbar-highlight-color: #fff;
+  /*滚动条阴影*/
+  scrollbar-shadow-color: #fff;
+  scrollbar-shadow-color: rgba(255, 255, 255, 0.3);
+  /*滚动条轨道颜色*/
+  scrollbar-track-color: #f2f2f2;
+}
+</style>
