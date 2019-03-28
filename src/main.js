@@ -17,7 +17,7 @@ Vue.use(OptionGroup);
 Vue.use(Tooltip);
 Vue.use(Dialog);
 Vue.use(Input);
-Vue.use(Message);
+Vue.component('Message', Message);
 Vue.prototype.$message = Message;
 
 Vue.config.productionTip = false
