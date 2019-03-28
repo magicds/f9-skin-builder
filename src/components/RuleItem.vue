@@ -10,7 +10,6 @@
 
 <script>
 import ColorPicker from "./ColorPicker";
-import { debug } from "util";
 export default {
   components: {
     ColorPicker
@@ -29,14 +28,6 @@ export default {
       useRefer: hasRefer
     };
   },
-  // data() {
-  //   const hasRefer = !!this.rule.refer;
-  //   const referLabel = hasRefer ? `同【${this.rule.refer.name}】` : "";
-  //   return {
-  //     useRefer: hasRefer,
-  //     referLabel: referLabel
-  //   };
-  // },
   computed: {
     hasRefer() {
       return !!this.rule.refer;
@@ -46,7 +37,7 @@ export default {
     }
   },
   methods: {
-    handlePickerChange(color) {
+    handlePickerChange() {
       this.$emit("change");
       // 用户修改过就不再是引用了
       if (this.rule.refer) {

@@ -6,21 +6,25 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon Shortcut Bookmark" href="<%= BASE_URL %>favicon.ico">
-
   <title>在线换肤</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <script>
+    (function () {
+      var IEVersionMatch = navigator.userAgent.match(/MSIE (.+?)(?=;)/);
 
-  <script src="<%= BASE_URL %>config.js?t=<%= +new Date() %>"></script>
+      if (IEVersionMatch && parseInt(IEVersionMatch[1], 10) < 10) {
+        return document.write("<strong>此工具不能在您的浏览器中工作，请使用 IE10 以上版本浏览器或使用 Chrome浏览器。<\/strong>");
+      }
+
+      var t = +new Date();
+      var path = '<%= BASE_URL %>config.js?t=' + t;
+      document.write('<script src="' + path + '"><\/script>');
+    })();
+  </script>
 </head>
 
 <body>
   <noscript>
-    <strong>We're sorry but f9-skin-builder doesn't work properly without JavaScript enabled. Please enable it to
+    <strong>We're sorry but f9SkinBuilder doesn't work properly without JavaScript enabled. Please enable it to
       continue.</strong>
   </noscript>
   <div id="app"></div>

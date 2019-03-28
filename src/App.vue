@@ -23,7 +23,7 @@
 
 <script>
 import SkinBuilder from "./components/SkinBuilder.vue";
-
+/* global __F9_SKIN_BUILDER__ */
 const SAVE_PREFIX = "__F9_SKIN_BUILDER__" + __F9_SKIN_BUILDER__.version;
 
 export default {
@@ -127,7 +127,7 @@ export default {
         this.$set(this, "rule", rules);
       }
     },
-    saveAsPreset(done) {
+    saveAsPreset() {
       var rule = this.$refs.skinBuilder.getFormData();
       const currPresetId = "myPreset-" + this.presetRules[1].options.length;
       const currPreset = {

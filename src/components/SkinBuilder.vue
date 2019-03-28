@@ -39,7 +39,6 @@ import RuleItem from "./RuleItem";
 import hljs from "highlight.js/lib/highlight";
 import css from "highlight.js/lib/languages/css";
 import "highlight.js/styles/atom-one-dark.css";
-import { debug } from "util";
 
 hljs.registerLanguage("css", css);
 
@@ -202,9 +201,10 @@ export default {
   height: 100vh;
   .rule-area,
   .btns {
-    padding: 0 10px;
+    padding: 20px 10px 0;
   }
   .rule-area {
+    color: #fff;
     margin-bottom: 20px;
     > h2 {
       font-size: 14px;
@@ -229,6 +229,11 @@ export default {
     .rule-item {
       flex-basis: 33.33%;
       margin-bottom: 6px;
+      &:last-child,
+      &:nth-last-child(2),
+      &:nth-last-child(3) {
+        color: #000;
+      }
     }
   }
 

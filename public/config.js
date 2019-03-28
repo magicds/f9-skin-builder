@@ -158,8 +158,8 @@ window.__F9_SKIN_BUILDER__ = {
             }
         }
     },
-    previewUrl: "http://192.168.118.47/ep93/frame/fui/pages/skinTest/all.html",
-    lessUrl:"http://192.168.118.47/ep93/frame/fui/mutableui/src/skin-clear.less",
+    previewUrl: "/ep93/frame/fui/pages/skinTest/all.html",
+    lessUrl:"/ep93/frame/fui/mutableui/src/skin-clear.less",
     version: '0.0.1'
 };
 
