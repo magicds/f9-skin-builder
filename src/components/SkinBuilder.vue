@@ -22,7 +22,7 @@
     <div class="preview" v-if="previewUrl">
       <iframe ref="previewIframe" :src="previewUrl" frameborder="0" width="100%" height="100%"></iframe>
     </div>
-    <el-dialog title="查看代码" :visible.sync="showCode" top="50px" width="80%" @open="highlightCode">
+    <el-dialog title="查看代码" class="code-dialog" :visible.sync="showCode" top="50px" width="80%" @open="highlightCode">
       <pre v-if="showCode" :style="'height:'+codeHeight+'px;'"><code ref="code" class="lang-css">{{output}}</code></pre>
       <!-- <span slot="footer" class="dialog-footer">
         <el-button @click="showCode = false" size="small">取 消</el-button>
@@ -255,7 +255,7 @@ export default {
   height: 100%;
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
 }
-.el-dialog__body {
+.code-dialog .el-dialog__body {
   padding: 0 0 20px;
 }
 </style>

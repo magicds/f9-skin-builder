@@ -4,7 +4,10 @@
       预设:
       <el-select class="preset-select" v-model="currRule" placeholder="请选择" @change="updateFromPreset" size="small">
         <el-option-group v-for="group in presetRules" :key="group.label" :label="group.label">
-          <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option v-for="(item, index) in group.options" :key="item.value" :label="item.label" :value="item.value">
+            {{item.label}}
+            <i v-if="group.label == '我的预设'" class="preset-remove-btn el-icon-close" @click.stop="removePreset(item.value, index, group.options)"></i>
+          </el-option>
         </el-option-group>
       </el-select>
       <el-button type="primary" class="preset-save" @click="dialogVisible = true" size="small" :disabled="!!currRule">存为预设</el-button>
@@ -143,6 +146,24 @@ export default {
       this.addCustomPreset(currPresetId, currPreset);
       this.dialogVisible = false;
     },
+    removePreset(id, i, arr) {
+      console.log(...arguments);
+
+      // 移除数据
+      arr.splice(i, 1);
+      delete this.presetMaps[id];
+
+      // 重新保存
+      const presets =
+        JSON.parse(localStorage.getItem(SAVE_PREFIX + "--PRESET")) || {};
+      presets[id] = null;
+      delete presets[id];
+      localStorage.setItem(SAVE_PREFIX + "--PRESET", JSON.stringify(presets));
+
+      if (id == this.currRule) {
+        this.currRule = "";
+      }
+    },
     addCustomPreset(id, preset) {
       this.presetRules[1].options.push({
         label: preset.name,
@@ -183,6 +204,29 @@ body {
     }
   }
   .preview {
+  }
+}
+
+.preset-remove-btn {
+  float: right;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 7px;
+  opacity: 0;
+  transition: all 0.2s ease-out;
+  text-align: center;
+  &:hover {
+    color: #409eff;
+    font-size: 16px;
+  }
+}
+.el-select-dropdown__item {
+  &:hover,
+  &.hover {
+    .preset-remove-btn {
+      opacity: 1;
+    }
   }
 }
 </style>
