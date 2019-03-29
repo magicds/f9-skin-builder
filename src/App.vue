@@ -204,6 +204,13 @@ body {
     }
   }
   .preview {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 380px;
+    height: 100%;
+    -webkit-box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
+    box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
   }
 }
 

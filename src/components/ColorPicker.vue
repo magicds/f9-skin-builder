@@ -93,11 +93,11 @@ export default {
       }
     },
     showPicker() {
-      document.addEventListener("mousedown", this.documentClick);
+      document.addEventListener("click", this.documentClick);
       this.displayPicker = true;
     },
     hidePicker() {
-      document.removeEventListener("mousedown", this.documentClick);
+      document.removeEventListener("click", this.documentClick);
       this.displayPicker = false;
     },
     togglePicker() {
@@ -186,7 +186,7 @@ export default {
   &-chrome {
     position: absolute;
     z-index: 1;
-    top: calc(100% + 10px);
+    top: calc(100% + 4px);
     left: 0;
     padding-bottom: 2px;
 
@@ -199,7 +199,7 @@ export default {
       top: -10px;
       left: 10px;
 
-      display: block;
+      display: none;
 
       width: 0;
       height: 0;

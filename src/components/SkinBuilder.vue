@@ -198,7 +198,6 @@ export default {
 </script>
 <style lang="less">
 .skin-builder {
-  height: 100vh;
   .rule-area,
   .btns {
     padding: 20px 10px 0;
@@ -246,14 +245,6 @@ export default {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
     overflow: auto;
   }
-}
-.preview {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 380px;
-  height: 100%;
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.15);
 }
 .code-dialog .el-dialog__body {
   padding: 0 0 20px;

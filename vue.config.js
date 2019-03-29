@@ -1,6 +1,7 @@
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? "/fedemo/pages/f9skinbuilder/" : '/',
   productionSourceMap: false,
+  crossorigin: 'use-credentials',
   devServer: {
     proxy: {
       '/ep': {
