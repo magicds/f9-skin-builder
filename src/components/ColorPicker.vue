@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import Bus from "./bus.js";
 import { Chrome } from "vue-color";
 export default {
   components: {
@@ -93,11 +94,11 @@ export default {
       }
     },
     showPicker() {
-      document.addEventListener("click", this.documentClick);
+      document.addEventListener("click", this.documentClick, true);
       this.displayPicker = true;
     },
     hidePicker() {
-      document.removeEventListener("click", this.documentClick);
+      document.removeEventListener("click", this.documentClick, true);
       this.displayPicker = false;
     },
     togglePicker() {
@@ -146,6 +147,9 @@ export default {
         this.setStyle();
         this.$emit("input", val);
       }
+    },
+    displayPicker(show) {
+      Bus.$emit("colorPickerChange", show);
     }
   }
 };

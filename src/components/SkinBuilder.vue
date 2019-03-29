@@ -21,18 +21,20 @@
 
     <div class="preview" v-if="previewUrl">
       <iframe ref="previewIframe" :src="previewUrl" frameborder="0" width="100%" height="100%"></iframe>
+      <div rel="previewCover" v-show="showCover" class="preview-cover"></div>
     </div>
     <el-dialog title="查看代码" class="code-dialog" :visible.sync="showCode" top="50px" width="80%" @open="highlightCode">
       <pre v-if="showCode" :style="'height:'+codeHeight+'px;'"><code ref="code" class="lang-css">{{output}}</code></pre>
       <!-- <span slot="footer" class="dialog-footer">
         <el-button @click="showCode = false" size="small">取 消</el-button>
         <el-button type="primary" size="small">确 定</el-button>
-      </span> -->
+      </span>-->
     </el-dialog>
   </div>
 </template>
 
 <script>
+import Bus from "./bus.js";
 import lessRender from "./lib/lessRender.js";
 import download from "./lib/download.js";
 import RuleItem from "./RuleItem";
@@ -66,6 +68,7 @@ export default {
   data() {
     // return this.genderData();
     return {
+      showCover: false,
       baseRules: [],
       advancedRules: [],
       output: "",
@@ -77,6 +80,7 @@ export default {
     this.updateRules();
     this.renderStyle();
     this.calcHeight();
+    Bus.$on("colorPickerChange", this.handlePreviewCover);
   },
   watch: {
     less() {
@@ -110,6 +114,9 @@ export default {
     }
   },
   methods: {
+    handlePreviewCover(show) {
+      this.showCover = show;
+    },
     calcHeight() {
       this.codeHeight = window.innerHeight - 210;
     },
@@ -245,6 +252,17 @@ export default {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
     overflow: auto;
   }
+}
+.preview {
+  position: relative;
+}
+.preview-cover {
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  // background: rgba(0, 0, 0, 0.15);
 }
 .code-dialog .el-dialog__body {
   padding: 0 0 20px;
