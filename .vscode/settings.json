@@ -1,0 +1,5 @@
+{
+    "csscomb.preset": {
+        "block-indent": "  "
+    }
+}
