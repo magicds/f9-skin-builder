@@ -1,5 +1,9 @@
 # f9-skin-builder
 
+新点F9在线换肤
+
+[体验地址： https://fe.epoint.com.cn/fedemo/pages/f9skinbuilder/](https://fe.epoint.com.cn/fedemo/pages/f9skinbuilder/)
+
 ## Project setup
 ```
 npm install
@@ -14,16 +18,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
