@@ -81,6 +81,11 @@ export default {
     this.renderStyle();
     this.calcHeight();
     Bus.$on("colorPickerChange", this.handlePreviewCover);
+
+    window.addEventListener('message', this.onGetCurrStyle);
+  },
+  beforeDestroy(){
+    window.removeEventListener('message', this.onGetCurrStyle);
   },
   watch: {
     less() {
@@ -114,6 +119,17 @@ export default {
     }
   },
   methods: {
+    onGetCurrStyle(ev) {
+      let data = ev.data;
+      try {
+        if (data + '' === data) {
+          data = JSON.parse(data);
+        }
+        if(data.type == 'getSkinBuildStyle') {
+          this.updatePreview();
+        }
+      } catch (error) {}
+    },
     handlePreviewCover(show) {
       this.showCover = show;
     },
